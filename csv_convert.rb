@@ -1,18 +1,12 @@
-require 'csv'
+require "csv"
 
-rows = CSV.open(ARGV[0], 'r')
-now_item = "" #現在のUSERをここに入れる
-rows.shift	#１行目は列名なので飛ばす
+abort("CSV file required.") unless ARGV[0]
 
-rows.each{ |row|
-	if now_item == "" then
-		now_item = row[0]
-		print row[0] #USER名を表示する
-	elsif now_item != row[0] then #もしUSERが次のに変わったら、新しいUSERをnow_itemに入れる
-		now_item = row[0]
-		print "\n" 
-		print row[0] #USER名を表示する
-	end
-	print ",",row[1] #ITEM名を表示する。
-	}
-print "\n"
+result = []
+
+CSV.open(ARGV[0], "r", :headers => :first_row).each do |row|
+  result << [row[0]] unless result.assoc(row[0])
+  result[result.index(result.assoc(row[0]))] << row[1]
+end
+
+puts result.map(&:to_csv)
